@@ -1,0 +1,9 @@
+
+.vscode
+
+*.o
+*.a
+*.so
+*.dll
+*.lib
+*.dylib
