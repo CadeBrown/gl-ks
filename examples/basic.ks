@@ -16,6 +16,38 @@ import nx
 window = gl.glfw.Window("basic", (640, 480))
 
 
+# Create basic vertex pattern
+vertex = nx.struct('vertex', [
+    # Position (x, y, z)
+    ('x', nx.float), ('y', nx.float), ('z', nx.float),
+
+    # Texture coordinates (u, v)
+    ('u', nx.float), ('v', nx.float),
+])
+
+# Triangle type
+tri = nx.struct('tri', [
+    # Three triangles (a, b, c)
+    # These are an index into another array
+    ('a', nx.s32), ('b', nx.s32), ('c', nx.s32),
+])
+
+
+# Create datapoints for the screen quad
+quad_d = vertex([
+    (-1, -1, 0, 0, 1),
+    (-1, +1, 0, 0, 0),
+    (+1, -1, 0, 1, 1),
+    (+1, +1, 0, 1, 0),
+])
+
+# Indices of triangles
+quad_i = tri([
+    (0, 1, 2),
+    (1, 3, 2),
+])
+
+
 # While it should stay rendering
 while window {
 
