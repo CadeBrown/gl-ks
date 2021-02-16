@@ -32,7 +32,7 @@ LDFLAGS        += -L$(KS)/lib
 
 # -*- Files -*-
 
-src_C          := $(wildcard src/*.c)
+src_C          := $(wildcard src/*.c) $(wildcard src/glfw/*.c)
 src_H          := $(wildcard include/*.h)
 
 src_O          := $(patsubst %.c,%.o,$(src_C))

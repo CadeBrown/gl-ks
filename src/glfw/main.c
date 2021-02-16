@@ -1,4 +1,4 @@
-/* glfw.c - GLFW submodule
+/* glfw/main.c - GLFW submodule
  *
  *
  * @author: Cade Brown <cade@kscript.org>
@@ -55,7 +55,4 @@ ks_module _ksgl_glfw() {
     ));
 }
 
-
 #endif
-
-

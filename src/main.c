@@ -45,6 +45,36 @@ static KS_TFUNC(M, viewport) {
     return KSO_NONE;
 }
 
+
+static KS_TFUNC(M, polygonMode) {
+    ks_cint face, mode = GL_FILL;
+    KS_ARGS("face:cint ?mode:cint", &face, &mode);
+
+    glPolygonMode(face, mode);
+
+    return KSO_NONE;
+}
+
+
+static KS_TFUNC(M, drawArrays) {
+    ks_cint mode, first, count;
+    KS_ARGS("mode:cint first:cint count:cint", &mode, &first, &count);
+
+    glDrawArrays(mode, first, count); 
+
+    return KSO_NONE;
+}
+
+static KS_TFUNC(M, drawElements) {
+    ks_cint mode, count, type, indices = 0;
+    KS_ARGS("mode:cint count:cint type:cint ?indices:cint", &mode, &count, &type, &indices);
+
+    glDrawElements(mode, count, type, (void*)indices);
+
+    return KSO_NONE;
+}
+
+
 /* Export */
 
 static ks_module get() {
@@ -65,6 +95,11 @@ static ks_module get() {
     }
 #endif
 
+    _ksgl_shader();
+    _ksgl_vbo();
+    _ksgl_ebo();
+    _ksgl_vao();
+
     ks_module res = ks_module_new(M_NAME, "", "OpenGL bindings for kscript", KS_IKV(
 
         /* Submodules */
@@ -75,15 +110,22 @@ static ks_module get() {
         /* Constants */
         
         /* Types */
+        {"Shader",  (kso)ksglt_shader},
+        {"EBO",  (kso)ksglt_ebo},
+        {"VBO",  (kso)ksglt_vbo},
+        {"VAO",  (kso)ksglt_vao},
 
         /* Functions */
 
         {"clear",                  ksf_wrap(M_clear_, M_NAME ".clear(flags)", "Clears 'flags' (which should be a bitmask of OpenGL flags)")},
         {"clearColor",             ksf_wrap(M_clearColor_, M_NAME ".clearColor(*args)", "Sets the clear color to '*args', which should be the RGBA components (default: black)")},
 
-
-
         {"viewport",               ksf_wrap(M_viewport_, M_NAME ".viewport(x, y, w, h)", "Set the viewport rendering range")},
+
+        {"polygonMode",            ksf_wrap(M_polygonMode_, M_NAME "polygonMode(face, mode=gl.FILL)", "Set the polygon rendering mode")},
+
+        {"drawArrays",             ksf_wrap(M_drawArrays_, M_NAME ".drawArrays(mode, first, count)", "Draws primitives from the currently bound vao")},
+        {"drawElements",           ksf_wrap(M_drawElements_, M_NAME ".drawElements(mode, first, count)", "Draws primitives from the currently bound VAO's EBO")},
 
     ));
 

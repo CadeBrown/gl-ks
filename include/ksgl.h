@@ -29,6 +29,60 @@
 
 
 
+/** Types **/
+
+/* gl.Shader(src_vert) - OpenGL shader program
+ *
+ */
+typedef struct ksgl_shader_s {
+    KSO_BASE
+    
+    /* OpenGL handle for the program 
+     * Created via 'glCreateProgram()'
+     */
+    int val;
+
+}* ksgl_shader;
+
+
+/* gl.VBO(data='') - OpenGL vertex buffer object
+ *
+ */
+typedef struct ksgl_vbo_s {
+    KSO_BASE
+
+    /* OpenGL handle for the buffer
+     */
+    int val;
+
+}* ksgl_vbo;
+
+/* gl.EBO(data='') - OpenGL element buffer object
+ *
+ */
+typedef struct ksgl_ebo_s {
+    KSO_BASE
+
+    /* OpenGL handle for the element buffer
+     */
+    int val;
+
+}* ksgl_ebo;
+
+
+
+/* gl.VAO() - OpenGL vertex array object
+ *
+ */
+typedef struct ksgl_vao_s {
+    KSO_BASE
+
+    /* OpenGL handle for the array buffer
+     */
+    int val;
+
+}* ksgl_vao;
+
 
 /** Functions **/
 
@@ -41,7 +95,6 @@ bool ksgl_check();
  * 'out' should store '4' values
  */
 bool ksgl_getcolor(int nargs, kso* args, ks_cfloat* out);
-
 
 
 
@@ -79,14 +132,17 @@ typedef struct ksgl_glfw_window_s {
 
 
 
-
-
 #endif
 
 
 
 
 ks_type
+    ksglt_shader,
+    ksglt_vbo,
+    ksglt_ebo,
+    ksglt_vao,
+
     ksgl_glfwt_monitor,
     ksgl_glfwt_window
 ;
@@ -97,6 +153,10 @@ ks_type
 /* gl.glfw module */
 ks_module _ksgl_glfw();
 
+void _ksgl_shader();
+void _ksgl_vbo();
+void _ksgl_vao();
+void _ksgl_ebo();
 void _ksgl_glfw_monitor();
 void _ksgl_glfw_window();
 

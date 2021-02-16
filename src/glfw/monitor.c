@@ -1,4 +1,4 @@
-/* glfw_monitor.c - gl.glfw.Monitor type
+/* glfw/monitor.c - gl.glfw.Monitor type
  *
  * @author: Cade Brown <cade@kscript.org>
  */

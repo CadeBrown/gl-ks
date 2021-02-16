@@ -1,4 +1,4 @@
-/* glfw_window.c - gl.glfw.Window type
+/* glfw/window.c - gl.glfw.Window type
  *
  * @author: Cade Brown <cade@kscript.org>
  */
