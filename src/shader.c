@@ -129,6 +129,147 @@ static KS_TFUNC(T, use) {
     return KSO_NONE;
 }
 
+static KS_TFUNC(T, uniform) {
+    ksgl_shader self;
+    ks_str name;
+    kso val;
+    KS_ARGS("self:* name:* val", &self, ksglt_shader, &name, kst_str, &val);
+
+    int pos = glGetUniformLocation(self->val, name->data);
+    if (pos < 0) {
+        KS_THROW(kst_Error, "Unknown uniform %R", name);
+        return NULL;
+    }
+
+
+    if (kso_is_int(val)) {
+        /* Set as integer */
+        ks_cint v;
+        if (!kso_get_ci(val, &v)) {
+            return NULL;
+        }
+
+        glUniform1i(pos, v);
+
+    } else {
+        /* Some sort of matrix/vector */
+
+        nx_t vn;
+        kso ref = NULL;
+        if (!nx_get(val, nxd_F, &vn, &ref)) {
+            return NULL;
+        }
+
+        if (vn.rank == 0) {
+            /* Scalar */
+            glUniform1f(pos, *(nx_F*)vn.data);
+        } else if (vn.rank == 1) {
+            /* Vector */
+            int n = vn.shape[0];
+            int sn = vn.strides[0];
+            #define GET(_i) (*(nx_F*)((ks_uint)vn.data + sn * (_i)))
+
+            if (n == 1) {
+                glUniform1f(pos, GET(0));
+            } else if (n == 2) {
+                glUniform2f(pos, GET(0), GET(1));
+            } else if (n == 3) {
+                glUniform3f(pos, GET(0), GET(1), GET(2));
+            } else if (n == 4) {
+                glUniform4f(pos, GET(0), GET(1), GET(2), GET(3));
+            } else {
+                KS_THROW(kst_SizeError, "Expected rank-1 array to have length 1, 2, 3, or 4 for shader uniform");
+                KS_NDECREF(ref);
+                return NULL;
+            }
+            #undef GET
+        } else if (vn.rank == 2) {
+            /* Vector */
+            int m = vn.shape[0], n = vn.shape[1];
+            int sm = vn.strides[0], sn = vn.strides[1];
+            GLfloat v[16];
+
+            #define GET(_i, _j) (*(nx_F*)((ks_uint)vn.data + sm * (_i) + sn * (_j)))
+
+            /* Copy into 'v', as dense array */
+            #define COPY() do { \
+                int i, j; \
+                for (i = 0; i < m; ++i) { \
+                    for (j = 0; j < n; ++j) { \
+                        v[i * n + j] = GET(i, j); \
+                    } \
+                } \
+            } while (0)
+
+            if (m == 1 && n == 1) {
+                glUniform1f(pos, GET(0, 0));
+            } else if (m == 1 && n == 2) {
+                glUniform2f(pos, GET(0, 0), GET(0, 1));
+            } else if (m == 1 && n == 3) {
+                glUniform3f(pos, GET(0, 0), GET(0, 1), GET(0, 2));
+            } else if (m == 1 && n == 4) {
+                glUniform4f(pos, GET(0, 0), GET(0, 1), GET(0, 2), GET(0, 3));
+            } else if (m == 1 && n == 1) {
+                glUniform1f(pos, GET(0, 0));
+            } else if (m == 2 && n == 1) {
+                glUniform2f(pos, GET(0, 0), GET(1, 0));
+            } else if (m == 3 && n == 1) {
+                glUniform3f(pos, GET(0, 0), GET(1, 0), GET(2, 0));
+            } else if (m == 4 && n == 1) {
+                glUniform4f(pos, GET(0, 0), GET(1, 0), GET(2, 0), GET(3, 0));
+
+            } else if (m == 2 && n == 2) {
+                COPY();
+                glUniformMatrix2fv(pos, 1, GL_TRUE, v);
+            } else if (m == 2 && n == 3) {
+                COPY();
+                glUniformMatrix2x3fv(pos, 1, GL_TRUE, v);
+            } else if (m == 2 && n == 4) {
+                COPY();
+                glUniformMatrix2x4fv(pos, 1, GL_TRUE, v);
+            
+            } else if (m == 3 && n == 2) {
+                COPY();
+                glUniformMatrix3x2fv(pos, 1, GL_TRUE, v);
+            } else if (m == 3 && n == 3) {
+                COPY();
+                glUniformMatrix3fv(pos, 1, GL_TRUE, v);
+            } else if (m == 3 && n == 4) {
+                COPY();
+                glUniformMatrix3x4fv(pos, 1, GL_TRUE, v);
+
+            } else if (m == 4 && n == 2) {
+                COPY();
+                glUniformMatrix4x2fv(pos, 1, GL_TRUE, v);
+            } else if (m == 4 && n == 3) {
+                COPY();
+                glUniformMatrix4x3fv(pos, 1, GL_TRUE, v);
+            } else if (m == 4 && n == 4) {
+                COPY();
+                glUniformMatrix4fv(pos, 1, GL_TRUE, v);
+
+            } else {
+                KS_THROW(kst_SizeError, "Expected rank-2 array to have length 1, 2, 3, or 4 for both shapes");
+                KS_NDECREF(ref);
+                return NULL;
+            }
+
+            #undef GET
+        } else {
+            KS_THROW(kst_SizeError, "Only expected rank-0, rank-1, or rank-2 arrays for shader uniform");
+            KS_NDECREF(ref);
+            return NULL;
+        }
+
+        KS_NDECREF(ref);
+    }
+
+
+    return KSO_NONE;
+}
+
+
+
 /* Export */
 
 ks_type ksglt_shader;
@@ -139,6 +280,7 @@ void _ksgl_shader() {
         {"__init",                 ksf_wrap(T_init_, T_NAME ".__init(self, src_vert, src_frag)", "")},
 
         {"use",                    ksf_wrap(T_use_, T_NAME ".use(self)", "Set this shader to the current OpenGL shader")},
+        {"uniform",                ksf_wrap(T_uniform_, T_NAME ".uniform(self, name, val)", "Set the uniform 'name' to a given value")},
 
     ));
 }

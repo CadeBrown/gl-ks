@@ -20,8 +20,7 @@
 
 /* kscript API */
 #include <ks/ks.h>
-
-
+#include <ks/nx.h>
 
 
 /* OpenGL API (3.3), generated via gl3w */
@@ -69,8 +68,6 @@ typedef struct ksgl_ebo_s {
 
 }* ksgl_ebo;
 
-
-
 /* gl.VAO() - OpenGL vertex array object
  *
  */
@@ -82,6 +79,21 @@ typedef struct ksgl_vao_s {
     int val;
 
 }* ksgl_vao;
+
+
+/* gl.texture2d() - OpenGL 2D texture
+ *
+ */
+typedef struct ksgl_texture2d_s {
+    KSO_BASE
+
+    /* OpenGL handle for the array buffer
+     */
+    int val;
+
+}* ksgl_texture2d;
+
+
 
 
 /** Functions **/
@@ -131,17 +143,19 @@ typedef struct ksgl_glfw_window_s {
 }* ksgl_glfw_window;
 
 
-
 #endif
 
 
 
 
 ks_type
-    ksglt_shader,
     ksglt_vbo,
     ksglt_ebo,
     ksglt_vao,
+    ksglt_shader,
+    ksglt_texture1d,
+    ksglt_texture2d,
+    ksglt_texture3d,
 
     ksgl_glfwt_monitor,
     ksgl_glfwt_window
@@ -154,9 +168,11 @@ ks_type
 ks_module _ksgl_glfw();
 
 void _ksgl_shader();
+void _ksgl_texture2d();
 void _ksgl_vbo();
 void _ksgl_vao();
 void _ksgl_ebo();
+
 void _ksgl_glfw_monitor();
 void _ksgl_glfw_window();
 

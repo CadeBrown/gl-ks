@@ -57,7 +57,6 @@ static KS_TFUNC(T, init) {
     /* 1=vsync, 0=as fast as possible */
     glfwSwapInterval(1);
 
-
     return KSO_NONE;
 }
 

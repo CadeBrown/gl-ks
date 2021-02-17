@@ -7,10 +7,235 @@
 #include <ks/cext.h>
 
 
+/* Internals */
+
+/* Cross product */
+static void my_cross(ks_cfloat Ax, ks_cfloat Ay, ks_cfloat Az, ks_cfloat Bx, ks_cfloat By, ks_cfloat Bz, ks_cfloat *Cx, ks_cfloat *Cy, ks_cfloat *Cz) {
+    *Cx = Ay * Bz - Az * By;
+    *Cy = Az * Bx - Ax * Bz;
+    *Cz = Ax * By - Ay * Bx;
+}
+
+
 /* C-API */
 
 
 /* Module functions */
+
+static KS_TFUNC(M, translate) {
+    ks_cfloat x, y, z;
+    KS_ARGS("x:cfloat y:cfloat z:cfloat", &x, &y, &z);
+
+    /* Result 4x4 matrix */
+    nx_F res[4][4];
+
+    int i, j;
+    for (i = 0; i < 4; ++i) {
+        for (j = 0; j < 4; ++j) {
+            res[i][j] = 0.0;
+        }
+    }
+
+    res[0][0] = 1.0;
+    res[1][1] = 1.0;
+    res[2][2] = 1.0;
+    res[3][3] = 1.0;
+
+    res[0][3] = x;
+    res[1][3] = y;
+    res[2][3] = z;
+    return (kso)nx_array_newc(nxt_array, &res[0][0], nxd_F, 2, (ks_size_t[]){ 4, 4 }, NULL);
+}
+static KS_TFUNC(M, scale) {
+    ks_cfloat x, y, z;
+    KS_ARGS("x:cfloat y:cfloat z:cfloat", &x, &y, &z);
+
+    /* Result 4x4 matrix */
+    nx_F res[4][4];
+
+    int i, j;
+    for (i = 0; i < 4; ++i) {
+        for (j = 0; j < 4; ++j) {
+            res[i][j] = 0.0;
+        }
+    }
+
+    res[0][0] = x;
+    res[1][1] = y;
+    res[2][2] = z;
+    res[3][3] = 1.0;
+
+    return (kso)nx_array_newc(nxt_array, &res[0][0], nxd_F, 2, (ks_size_t[]){ 4, 4 }, NULL);
+}
+
+static KS_TFUNC(M, lookat) {
+    kso pos, target;
+    kso up = KSO_NONE;
+    KS_ARGS("pos target ?up", &pos, &target, &up);
+
+    ks_cfloat px, py, pz, tx, ty, tz;
+    ks_cfloat ux = 0, uy = 1, uz = 0;
+
+    if (up != KSO_NONE) {
+        ks_list uv = ks_list_newi(up);
+        if (!uv) {
+            return NULL;
+        }
+        if (uv->len != 3) {
+            KS_THROW(kst_SizeError, "Expected 'up' to be of length 3, but got length %i", (int)uv->len);
+            KS_DECREF(uv);
+            return NULL;
+        }
+
+        if (!kso_get_cf(uv->elems[0], &ux) || !kso_get_cf(uv->elems[1], &uy) || !kso_get_cf(uv->elems[2], &uz)) {
+            KS_DECREF(uv);
+            return NULL;
+        }
+
+        KS_DECREF(uv);
+    } 
+    ks_list pv = ks_list_newi(pos);
+    if (!pos) {
+        return NULL;
+    }
+    if (pv->len != 3) {
+        KS_THROW(kst_SizeError, "Expected 'pos' to be of length 3, but got length %i", (int)pv->len);
+        KS_DECREF(pv);
+        return NULL;
+    }
+
+    if (!kso_get_cf(pv->elems[0], &px) || !kso_get_cf(pv->elems[1], &py) || !kso_get_cf(pv->elems[2], &pz)) {
+        KS_DECREF(pos);
+        return NULL;
+    }
+
+    KS_DECREF(pv);
+
+    ks_list tv = ks_list_newi(target);
+    if (!tv) {
+        return NULL;
+    }
+    if (tv->len != 3) {
+        KS_THROW(kst_SizeError, "Expected 'target' to be of length 3, but got length %i", (int)tv->len);
+        KS_DECREF(tv);
+        return NULL;
+    }
+
+    if (!kso_get_cf(tv->elems[0], &tx) || !kso_get_cf(tv->elems[1], &ty) || !kso_get_cf(tv->elems[2], &tz)) {
+        KS_DECREF(tv);
+        return NULL;
+    }
+
+    KS_DECREF(tv);
+
+
+    /* Result 4x4 matrix */
+    nx_F res[4][4];
+    int i, j;
+    for (i = 0; i < 4; ++i) {
+        for (j = 0; j < 4; ++j) {
+            res[i][j] = 0.0;
+        }
+    }
+
+    /* Z-direction */
+    ks_cfloat dx = tx - px, dy = ty - py, dz = tz - pz;
+    ks_cfloat nrm = sqrt(dx * dx + dy * dy + dz * dz);
+
+    dx = -dx / nrm;
+    dy = -dy / nrm;
+    dz = -dz / nrm;
+
+    res[2][0] = dx;
+    res[2][1] = dy;
+    res[2][2] = dz;
+
+    /* New X direction */
+    ks_cfloat Xx, Xy, Xz;
+    my_cross(ux, uy, uz, dx, dy, dz, &Xx, &Xy, &Xz);
+
+    nrm = sqrt(Xx*Xx + Xy*Xy + Xz*Xz);
+    Xx /= nrm;
+    Xy /= nrm;
+    Xz /= nrm;
+
+    /* New Y diretion */
+    ks_cfloat Yx, Yy, Yz;
+    my_cross(dx, dy, dz, Xx, Xy, Xz, &Yx, &Yy, &Yz);
+
+    nrm = sqrt(Yx*Yx + Yy*Yy + Yz*Yz);
+    Yx /= nrm;
+    Yy /= nrm;
+    Yz /= nrm;
+
+    res[0][0] = Xx;
+    res[0][1] = Xy;
+    res[0][2] = Xz;
+
+    res[1][0] = Yx;
+    res[1][1] = Yy;
+    res[1][2] = Yz;
+    
+    res[3][3] = 1.0;
+    
+
+    /* Add offsets */
+    res[0][3] = -(Xx*px + Xy*py + Xz*pz);
+    res[1][3] = -(Yx*px + Yy*py + Yz*pz);
+    res[2][3] = -(dx*px + dy*py + dz*pz);
+
+    return (kso)nx_array_newc(nxt_array, &res[0][0], nxd_F, 2, (ks_size_t[]){ 4, 4 }, NULL);
+
+}
+
+static KS_TFUNC(M, perspective) {
+    ks_cfloat fov, aspect;
+    ks_cfloat Znear = 0.15, Zfar = 150.0;
+    KS_ARGS("fov:cfloat aspect:cfloat ?Znear:cfloat ?Zfar:cfloat", &fov, &aspect, &Znear, &Zfar);
+
+    /* Result 4x4 matrix */
+    nx_F res[4][4];
+    ks_cfloat tan_fov_2 = tan(fov / 2.0);
+
+    int i, j;
+    for (i = 0; i < 4; ++i) {
+        for (j = 0; j < 4; ++j) {
+            res[i][j] = 0.0;
+        }
+    }
+
+    res[0][0] = 1.0 / (aspect * tan_fov_2);
+    res[1][1] = 1.0 / (tan_fov_2);
+    res[2][2] = -(Zfar + Znear) / (Zfar - Znear);
+    res[2][3] = -(2 * Zfar * Znear) / (Zfar - Znear);
+
+    res[3][2] = -1.0;
+    
+    /* I don't think this is needed */
+    //res[3][3] = +1.0;
+
+    return (kso)nx_array_newc(nxt_array, &res[0][0], nxd_F, 2, (ks_size_t[]){ 4, 4 }, NULL);
+}
+
+static KS_TFUNC(M, enable) {
+    ks_cint cap;
+    KS_ARGS("cap:cint", &cap);
+
+    glEnable(cap);
+
+    return KSO_NONE;
+}
+
+static KS_TFUNC(M, disable) {
+    ks_cint cap;
+    KS_ARGS("cap:cint", &cap);
+
+    glDisable(cap);
+
+    return KSO_NONE;
+}
+
+
 
 static KS_TFUNC(M, clear) {
     ks_cint flags;
@@ -95,7 +320,17 @@ static ks_module get() {
     }
 #endif
 
+    ks_str k = ks_str_new(-1, "nx");
+    ks_module m = ks_import(k);
+    KS_DECREF(k);
+    if (!m) {
+        return NULL;
+    }
+
     _ksgl_shader();
+
+    _ksgl_texture2d();
+
     _ksgl_vbo();
     _ksgl_ebo();
     _ksgl_vao();
@@ -111,12 +346,25 @@ static ks_module get() {
         
         /* Types */
         {"Shader",  (kso)ksglt_shader},
+
+        {"Texture2D",  (kso)ksglt_texture2d},
+
         {"EBO",  (kso)ksglt_ebo},
         {"VBO",  (kso)ksglt_vbo},
         {"VAO",  (kso)ksglt_vao},
 
         /* Functions */
 
+
+        {"translate",              ksf_wrap(M_translate_, M_NAME ".translate(x, y, z)", "Creates a translation matrix shifting off 'x', 'y', and 'z' respectively")},
+        {"scale",                  ksf_wrap(M_scale_, M_NAME ".scale(x, y, z)", "Creates a scaling matrix scaling with 'x', 'y', and 'z' respectively")},
+
+        {"lookat",                 ksf_wrap(M_lookat_, M_NAME ".lookat(pos, target, up=(0, 1, 0))", "Creates a view matrix for the camera which is located at 'pos', and looking at 'target', with the up direction being 'up'")},
+        {"perspective",            ksf_wrap(M_perspective_, M_NAME ".perspective(fov, aspect, Znear=0.15, Zfar=150)", "Creates a perspective matrix with the given field of view (in radians), aspect ratio (w / h), and clipping planes")},
+
+
+        {"enable",                 ksf_wrap(M_enable_, M_NAME ".enable(cap)", "Enables a feature in OpenGL")},
+        {"disable",                ksf_wrap(M_disable_, M_NAME ".disable(cap)", "Disables a feature in OpenGL")},
         {"clear",                  ksf_wrap(M_clear_, M_NAME ".clear(flags)", "Clears 'flags' (which should be a bitmask of OpenGL flags)")},
         {"clearColor",             ksf_wrap(M_clearColor_, M_NAME ".clearColor(*args)", "Sets the clear color to '*args', which should be the RGBA components (default: black)")},
 
