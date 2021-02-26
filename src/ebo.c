@@ -23,18 +23,21 @@ static KS_TFUNC(T, free) {
     return KSO_NONE;
 }
 
-
-
 static KS_TFUNC(T, init) {
     ksgl_ebo self;
     kso data = KSO_NONE;
     ks_cint usage = GL_STATIC_DRAW;
     KS_ARGS("self:* ?data ?usage:cint", &self, ksglt_ebo, &data, &usage);
 
+    self->val = -1;
+
     /* Create buffer object */
     GLuint t;
     glGenBuffers(1, &t);
     self->val = t;
+    if (!ksgl_check()) {
+        return NULL;
+    }
 
     /* Convert the data to its bytes equivalent */
     ks_bytes data_bytes = kso_bytes(data);
@@ -48,6 +51,9 @@ static KS_TFUNC(T, init) {
 
     /* Done with the bytes */
     KS_DECREF(data_bytes);
+    if (!ksgl_check()) {
+        return NULL;
+    }
 
     return KSO_NONE;
 }
@@ -56,7 +62,10 @@ static KS_TFUNC(T, bind) {
     KS_ARGS("self:*", &self, ksglt_ebo);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self->val);
-
+    if (!ksgl_check()) {
+        return NULL;
+    }
+    
     return KSO_NONE;
 }
 
@@ -65,7 +74,10 @@ static KS_TFUNC(T, unbind) {
     KS_ARGS("self:*", &self, ksglt_ebo);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
+    if (!ksgl_check()) {
+        return NULL;
+    }
+    
     return KSO_NONE;
 }
 

@@ -41,7 +41,9 @@ static KS_TFUNC(T, bind) {
     KS_ARGS("self:*", &self, ksglt_vao);
 
     glBindVertexArray(self->val);
-
+    if (!ksgl_check()) {
+        return NULL;
+    }
     return KSO_NONE;
 }
 
@@ -50,7 +52,9 @@ static KS_TFUNC(T, unbind) {
     KS_ARGS("self:*", &self, ksglt_vao);
 
     glBindVertexArray(0);
-
+    if (!ksgl_check()) {
+        return NULL;
+    }
     return KSO_NONE;
 }
 
@@ -60,25 +64,36 @@ static KS_TFUNC(T, attrib) {
     KS_ARGS("self:* index:cint size:cint type:cint normalize:cint stride:cint ?offset:cint", &self, ksglt_vao, &index, &size, &type, &normalize, &stride, &offset);
 
     glVertexAttribPointer(index, size, type, normalize, stride, (void*)offset);
+    if (!ksgl_check()) {
+        return NULL;
+    }
+
+    /* Enable by default */
+    glEnableVertexAttribArray(index);
 
     return KSO_NONE;
 }
 
-static KS_TFUNC(T, enableAttrib) {
+static KS_TFUNC(T, attrib_enable) {
     ksgl_vao self;
     ks_cint index;
     KS_ARGS("self:* index:cint", &self, ksglt_vao, &index);
 
     glEnableVertexAttribArray(index);
-
+    if (!ksgl_check()) {
+        return NULL;
+    }
     return KSO_NONE;
 }
-static KS_TFUNC(T, disableAttrib) {
+static KS_TFUNC(T, attrib_disable) {
     ksgl_vao self;
     ks_cint index;
     KS_ARGS("self:* index:cint", &self, ksglt_vao, &index);
 
     glDisableVertexAttribArray(index);
+    if (!ksgl_check()) {
+        return NULL;
+    }
 
     return KSO_NONE;
 }
@@ -96,9 +111,10 @@ void _ksgl_vao() {
         {"bind",                   ksf_wrap(T_bind_, T_NAME ".bind(self)", "Bind this vertex array object as the current one")},
         {"unbind",                 ksf_wrap(T_unbind_, T_NAME ".unbind(self)", "Unbind this vertex array")},
 
-        {"attrib",                 ksf_wrap(T_attrib_, T_NAME ".attrib(self, index, size, type, normalize, stride, offset=0)", "Add an attribute pointer to the vao")},
-        {"enableAttrib",           ksf_wrap(T_enableAttrib_, T_NAME ".enableAttrib(self, index)", "Enables a vertex attribute")},
-        {"disableAttrib",          ksf_wrap(T_disableAttrib_, T_NAME ".disableAttrib(self, index)", "Disables a vertex attribute")},
+        {"attrib",                 ksf_wrap(T_attrib_, T_NAME ".attrib(self, index, size, type, normalize, stride, offset=0)", "Add an attribute pointer to the vao, and enables it")},
+
+        {"attrib_enable",          ksf_wrap(T_attrib_enable_, T_NAME ".attrib_enable(self, index)", "Enables a vertex attribute")},
+        {"attrib_disable",         ksf_wrap(T_attrib_disable_, T_NAME ".attrib_disable(self, index)", "Disables a vertex attribute")},
 
     ));
 }

@@ -1,0 +1,200 @@
+;; ksgl.doq - Documentation for the ksgl package
+;;
+;; @author: Cade Brown <cade@kscript.org>
+
+@set project, ksgl docs v0.0.1
+@set copyright, {2021 ChemicalDevelopment}
+
+
+@node ksgl docs, {}, {
+
+This is the documentation for the kscript OpenGL bindings, ksgl. You can import this module via the `import gl` name.
+
+For matrix and vector operations in this package, the {@url https://docs.kscript.org/#nx.array, nx.array} type present in the `nx` module is used.
+
+
+@node gl: OpenGL bindings, {}, {
+
+This module, `gl`, implements the basic OpenGL operations. Some are just bindings to the OpenGL API, and some functionality is wrapped in an object oriented interface.
+
+@node Constants, {OpenGL constants}, {
+
+This package includes OpenGL constants and enumerations available in the C API. However, the naming scheme is slightly different. The basic pattern is to remove the leading `GL_` and put it in the `gl` module. For example, `GL_COLOR_BUFFER_BIT` becomes `gl.COLOR_BUFFER_BIT`. This is true for all of the enumeration constants.
+
+We don't document all the constants here (as that would be too large and not very useful). But, if you see an example in C that uses the `GL_*` constants, just know they are defined in the `gl` module as `gl.*`
+
+}
+
+
+
+
+{@cdict
+
+    {gl.translate(x, y, z)}, {Returns an {@url https://docs.kscript.org/#nx.array, nx.array} of shape `(4, 4)` representing a translation of `x`, `y`, and `z`, respectively.
+    
+    Equivalent to:
+```ks
+func translate(x, y, z) {
+    ret nx.float([
+        [1, 0, 0, x],
+        [0, 1, 0, y],
+        [0, 0, 1, z],
+        [0, 0, 0, 1],
+    ])
+}
+```
+    },
+
+    {gl.scale(x, y, z)}, {Returns an {@url https://docs.kscript.org/#nx.array, nx.array} of shape `(4, 4)` representing a scaling of `x`, `y`, and `z`, respectively.
+    
+    Equivalent to:
+```ks
+func scale(x, y, z) {
+    ret nx.float([
+        [x, 0, 0, 0],
+        [0, y, 0, 0],
+        [0, 0, z, 0],
+        [0, 0, 0, 1],
+    ])
+}
+```
+    },
+
+    {gl.lookat(pos, target, up=(0, 1, 0))}, {Returns an {@url https://docs.kscript.org/#nx.array, nx.array} of shape `(4, 4)` representing a view matrix where the camera is positioned at `pos` (expected to be a tuple of `(x, y, z)`) looking at `target` (expected to be a tuple of `(x, y, z)`). Optionally, the `up` direction may be given to cause a tilt.
+    
+    },
+
+    {gl.perspective(fov, aspect, Znear=0.15, Zfar=150.0)}, {Returns an {@url https://docs.kscript.org/#nx.array, nx.array} of shape `(4, 4)` representing a projection matrix with a field-of-view of `fov` (in radians), and an aspect ratio of `aspect` (defined as `width/height`), and clipping planes between `Znear` and `Zfar`.
+    
+    },
+
+
+    {gl.enable(cap)}, {Enables a feature in OpenGL. 
+    
+    Equivalent to `glEnable` in C
+    
+    Examples:
+```ks
+>>> gl.enable(gl.DEPTH_TEST)
+```
+    },
+
+    {gl.disable(cap)}, {Disables a feature in OpenGL. 
+    
+    Equivalent to `glDisable` in C
+
+    Examples:
+```ks
+>>> gl.disable(gl.DEPTH_TEST)
+```
+    },
+
+
+    {gl.clear(flags)}, {Clears `flags`, which is a combination of OpenGL flags
+
+    Equivalent to `glClear` in C
+
+    Examples:
+
+```ks
+>>> gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT)
+```
+    },
+
+    {gl.clear_color(r=0.0, g=0.0, b=0.0, a=1.0)}, {Clears the color and sets to `(r, g, b, a)` (expected to be floats in the 0 to 1 range). If no colors are given, the default is pure black
+    
+    Equivalent to `glClearColor` in C
+    
+    },
+
+
+    {gl.viewport(x, y, w, h)}, {Set the viewport rendering area
+    
+    Equivalent to `glViewport` in C
+    
+    },
+    {gl.polygon_mode(face, mode=gl.FILL)}, {Sets the polygon rendering mode.
+    
+    Equivalent to `glPolygonMode` in C
+
+
+    Examples:
+```ks
+>>> gl.polygon_mode(gl.FRONT_AND_BACK, gl.FILL)   # Default mode
+>>> gl.polygon_mode(gl.FRONT_AND_BACK, gl.LINE)   # Wireframe mode
+>>> gl.polygon_mode(gl.FRONT_AND_BACK, gl.POINT)  # Just vertex points
+```
+
+    },
+
+    {gl.draw_arrays(mode, num, offset=0)}, {Issues a draw command on the currently enabled shader and currently enabled array (i.e. VBO) to draw `num` elements starting from `offset`. Note that for triangles, the `num` should be `3 * num_tris` (i.e. the number of indexes, not triangles)
+
+    Calls `glDrawArrays` in C
+    
+    Examples:
+```ks
+>>> # Make sure to bind a VBO before this!
+>>> gl.draw_arrays(gl.TRIANGLES, 3, 0)  # Draws tri 0
+>>> gl.draw_arrays(gl.TRIANGLES, 3, 3)  # Draws tri 1
+>>> gl.draw_arrays(gl.TRIANGLES, 6, 0)  # Draws tri 0 and tri 1
+```
+
+    },
+    {gl.draw_elements(mode, num, type, byteoffset=0)}, {Issues a draw command on the currently enabled shader and currently enabled vertex array's (i.e. VAO) index buffer (i.e. EBO) to draw `num` elements. Note that for triangles, the `num` should be `3 * num_tris` (i.e. the number of indexes, not triangles). `type` is the type of indexes being used. For example, using `nx.u32` (which is a good default), you would use `gl.UNSIGNED_INT`.
+
+    Remember that `byteoffset` is in bytes, not indexes. So, you could use `nx.u32.size * 5` to start at the 5th index.
+
+    Calls `glDrawElements` in C
+    
+    Examples:
+```ks
+>>> # Make sure to bind a VBO before this!
+>>> gl.draw_elements(gl.TRIANGLES, 3, gl.UNSIGNED_INT, 0)  # Draws tri 0
+>>> gl.draw_elements(gl.TRIANGLES, 3, gl.UNSIGNED_INT, 3 * nx.u32.size)  # Draws tri 1
+>>> gl.draw_elements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, 0)  # Draws tri 0 and tri 1
+```
+
+    },
+
+
+}
+
+@node gl.glfw: GLFW Bindings, {}, {
+
+This module, `gl.glfw`, implements {@url https://www.glfw.org/, GLFW} bindings.
+
+
+
+{@cdict
+    {gl.glfw.Window(name, size, monitor=none)}, {This type represents an GLFW window, created with a string name (`name`), and a size (`size`, expected to be a tuple of `(width, height)`), and optionally, a {@ref gl.glfw.Monitor, monitor} (default: primary monitor).
+    
+    {@dict
+        {.size}, {Returns a tuple of `(width, height)` detailing the current size of the window.},
+
+        {.pos}, {Returns a tuple of `(x, y)` detailing the current position of the window},
+
+
+        {gl.glfw.Window.show(self)}, {Shows the window, if it was hidden},
+        {gl.glfw.Window.hide(self)}, {Hides the window, if it was shown},
+        {gl.glfw.Window.swap(self)}, {Swaps the window's front and back buffers},
+    }
+    
+    },
+
+    {gl.glfw.Monitor(idx=-1)}, {This type represents a GLFW monitor. It can be created with an index (default: primary monitor).
+    
+    {@dict
+        {.name}, {Returns a string of the monitor's name},
+    }
+    },
+
+    {gl.glfw.poll()}, {Polls and processes events},
+
+
+}
+}
+
+
+}
+
+}

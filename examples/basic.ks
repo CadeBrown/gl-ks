@@ -77,11 +77,9 @@ tri_ebo = gl.EBO(nx.u32([
 
 # vec3 xyz;
 tri.attrib(0, 3, gl.FLOAT, gl.FALSE, 5 * nx.float.size, 0)
-tri.enableAttrib(0)
 
 # vec2 uv;
 tri.attrib(1, 2, gl.FLOAT, gl.FALSE, 5 * nx.float.size, 3 * nx.float.size)
-tri.enableAttrib(1)
 
 # We are done, so unbind it. When we re-bind it, the VBO and EBO are loaded as the current
 #   state
@@ -121,11 +119,11 @@ while window {
     gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT)
 
     # Set background color
-    gl.clearColor(0.1, 0.1, 0.1)
+    gl.clear_color(0.1, 0.1, 0.1)
 
 
     # Wireframe mode
-    #gl.polygonMode(gl.FRONT_AND_BACK, gl.LINE)
+    #gl.polygon_mode(gl.FRONT_AND_BACK, gl.LINE)
 
 
     ## Render Scene ##
@@ -141,7 +139,7 @@ while window {
     tri.bind()
     # Now, draw all the elements of the VAO
     # '3' is the number of datapoints, and each triangle takes 3
-    gl.drawElements(gl.TRIANGLES, 3, gl.UNSIGNED_INT, 0)
+    gl.draw_elements(gl.TRIANGLES, 3, gl.UNSIGNED_INT, 0)
 
     # Done with the VAO
     tri.unbind()

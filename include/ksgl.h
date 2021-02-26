@@ -27,6 +27,12 @@
 #include <gl3w.h>
 
 
+/* assimp, the asset importer */
+#include <assimp/cimport.h>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
+
 
 /** Types **/
 
@@ -118,7 +124,6 @@ bool ksgl_getcolor(int nargs, kso* args, ks_cfloat* out);
 #include <GLFW/glfw3.h>
 
 
-
 /* gl.glfw.Monitor - GLFW monitor wrapper
  *
  */
@@ -129,7 +134,6 @@ typedef struct ksgl_glfw_monitor_s {
     GLFWmonitor* val;
 
 }* ksgl_glfw_monitor;
-
 
 /* gl.glfw.Window - GLFW window wrapper
  *
@@ -145,7 +149,54 @@ typedef struct ksgl_glfw_window_s {
 
 #endif
 
+/** gl.ai (assimp) submodule **/
 
+
+/* gl.ai.Node - Node in scene
+ *
+ */
+typedef struct ksgl_ai_node_s {
+    KSO_BASE
+
+    /* Value being wrapped */
+    C_STRUCT aiNode* val;
+
+    /* Sub-nodes, children of this current node */
+    ks_list sub;
+
+}* ksgl_ai_node;
+
+/* gl.ai.Mesh - Mesh data
+ *
+ */
+typedef struct ksgl_ai_mesh_s {
+    KSO_BASE
+
+    /* Value being wrapped */
+    C_STRUCT aiMesh* val;
+
+}* ksgl_ai_mesh;
+
+
+/* gl.ai.Scene - Total scene from imported data
+ *
+ */
+typedef struct ksgl_ai_scene_s {
+    KSO_BASE
+
+    /* Value being wrapped */
+    C_STRUCT aiScene* val;
+
+    /* Source of the scene */
+    ks_str src;
+
+    /* Root node of the scene */
+    ksgl_ai_node root;
+
+    /* Meshes used in the scene */
+    ks_list meshes;
+
+}* ksgl_ai_scene;
 
 
 ks_type
@@ -158,7 +209,11 @@ ks_type
     ksglt_texture3d,
 
     ksgl_glfwt_monitor,
-    ksgl_glfwt_window
+    ksgl_glfwt_window,
+
+    ksgl_ait_scene,
+    ksgl_ait_node,
+    ksgl_ait_mesh
 ;
 
 
@@ -166,6 +221,8 @@ ks_type
 
 /* gl.glfw module */
 ks_module _ksgl_glfw();
+ks_module _ksgl_util();
+ks_module _ksgl_ai();
 
 void _ksgl_shader();
 void _ksgl_texture2d();
@@ -175,6 +232,10 @@ void _ksgl_ebo();
 
 void _ksgl_glfw_monitor();
 void _ksgl_glfw_window();
+
+void _ksgl_ai_scene();
+void _ksgl_ai_node();
+void _ksgl_ai_mesh();
 
 
 #endif /* KSGL_H__ */

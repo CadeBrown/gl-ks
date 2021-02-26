@@ -1,0 +1,252 @@
+/* doq.css - CSS for generated 'doq' projects
+ *
+ * @author: Cade Brown <cade@kscript.org>
+ */
+
+/** General CSS **/
+
+html {
+}
+
+body {
+    /* Default text font */
+    font-family: Verdana, sans-serif;
+
+    line-height: 1.2;
+}
+
+dt {
+    font-family: monospace;
+    font-weight: bold;
+    font-size: 135%;
+    margin-bottom: 0.25em;
+}
+dd {
+    margin-bottom: 1.25em;
+    margin-left: 2.0em;
+}
+code {
+    line-height: 1.4;
+    font-size: 110%;
+    background-color: #f0f0f0;
+    padding: 0.1em;
+}
+pre {
+    font-size: 104%;
+    background-color: #f0f0f0;
+    padding: 0.4em;
+}
+
+
+/* Inline mono */
+.monoi {
+    font-family: monospace;
+    line-height: 1.4;
+    font-size: 110%;
+    padding: 0.1em;
+
+}
+
+a .monoi {
+    text-decoration: none;
+}
+
+/** Specific Layouts **/
+
+.main {
+    /* Should be equal to the width of the side navigation */
+    margin-left: 300px;
+    padding: 0 0.6em;
+    width: auto;
+}
+
+.sidenav {
+    /* Sidebar width */
+    width: 300px;
+
+    /* Sidebar background color (see also in mobile view) */
+    background-color: #dadada;
+
+    height: 100%;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    overflow-x: hidden;
+}
+
+.sidenav-button {
+    position: fixed;
+    display: none;
+
+    bottom: 10px;
+    right: 10px;
+}
+
+
+.sidenav > div {
+    margin: 1.0em;
+    height: auto;
+}
+.sidenav a {
+    /* Link color in sidebar */
+    color: #0f52aa;
+    font-size: 16px;
+
+    /* Disable underline */
+    text-decoration: none;
+}
+
+
+.sidenav li {
+    /* Make list indentation less */
+    margin-left: -20px;
+}
+
+/* Bottom section of sidebar */
+.sidenav-bottom {
+    vertical-align: bottom;
+
+    font-size: 14px;
+    
+    position: absolute;
+    bottom: 0.6em;
+
+}
+
+/* SVG link icon */
+.link-div {
+    width: 20px;
+    margin: 0 6px;
+    display: inline-block;
+    vertical-align: middle;
+
+
+    /* Link color on clickable */
+    color: #0f52aa;
+    font-size: 16px;
+
+    /* Disable underline */
+    text-decoration: none;
+
+    visibility: hidden;
+}
+
+h1:hover > .link-div {
+    visibility: visible;
+}
+
+h2:hover > .link-div {
+    visibility: visible;
+}
+
+h3:hover > .link-div {
+    visibility: visible;
+}
+
+h4:hover > .link-div {
+    visibility: visible;
+}
+
+h5:hover > .link-div {
+    visibility: visible;
+}
+dt:hover > .link-div {
+    visibility: visible;
+}
+
+
+/* Mobile */
+@media screen and (max-width: 768px) {
+    .main {
+        margin-left: 0;
+    }
+    .sidenav {
+        width: 80%;
+        background-color: #dadada;
+        display: none;
+        font-size: 20px;
+        margin: auto;
+    }
+    .sidenav-button {
+        display: block;
+    }
+    dd {
+        margin-left: 1.0em;
+    }
+
+}
+
+
+
+/** Code Highlighting **/
+
+.hljs {
+    background-color: transparent !important;
+    display: block;
+    overflow-x: auto;
+    background: white;
+    color: #272727;
+    padding: 0.5em;
+}
+
+.hljs-emphasis {
+    font-style: italic;
+}
+.hljs-strong {
+    font-weight: bold;
+}
+
+.hljs-comment,
+.hljs-quote {
+    color: #407e7e;
+}
+
+.hljs-meta,
+.hljs-link {
+    color: #c82829;
+}
+
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+    color: #c82829;
+}
+
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-type,
+.hljs-params {
+    color: #0048ce;
+}
+
+.hljs-attribute {
+    color: #eab700;
+}
+
+.hljs-number,
+.hljs-literal {
+    color: #1f85ce;
+}
+
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+    color: #3e9616;
+}
+
+.hljs-title,
+.hljs-section {
+    color: #108e97;
+}
+
+.hljs-keyword,
+.hljs-selector-tag {
+    color: #7d1cec;
+}

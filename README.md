@@ -1,7 +1,12 @@
 
 # ksgl
 
-kscript bindings for [OpenGL](https://www.opengl.org/)
+kscript bindings for [OpenGL](https://www.opengl.org/), as well as auxiliary packages.
+
+Other bindings included:
+
+  * [GLFW](https://glfw.org/)
+  * [Assimp](https://www.assimp.org/)
 
 
 ## Usage

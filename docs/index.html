@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width,initial-scale=1.0'>
+    <title>ksgl docs v0.0.1</title>
+
+<!-- MathJax -->
+    <script>
+    MathJax = {
+        tex: {
+            inlineMath: [['$', '$']]
+        }
+    };
+    </script>
+    <script src='//polyfill.io/v3/polyfill.min.js?features=es6'></script>
+    <script id='MathJax-script' async src='//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js'></script>
+
+<!-- highlight.js -->
+    <script src='//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.4.0/highlight.min.js'></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
+<!-- doq specific assets -->
+    <link rel='stylesheet' href='doq.css'>
+    <script src='./doq.js'></script>
+    <script src='./hljs-ks.js'></script>
+
+</head>
+<body>
+
+<!-- SVG -->
+<svg xmlns='http://www.w3.org/2000/svg' style='display: none;'>
+    <!-- Link SVG -->
+    <symbol id='svg-link' viewBox='0 0 24 24'>
+    <title>Link</title>
+    <svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-link'>
+        <path d='M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71'></path>
+        <path d='M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71'></path>
+    </svg>
+    </symbol>
+</svg>
+
+<div id='sidenav' class='sidenav'><div>
+<ul><li><a href='#ksgl_docs'>ksgl docs</a><ul><li><a href='#gl'>gl: OpenGL bindings</a><ul><li><a href='#Constants'>Constants</a><ul></ul></li><li><a href='#gl.glfw'>gl.glfw: GLFW Bindings</a><ul></ul></li></ul></li></ul></li></ul></div></div>
+<div class='main'><div>
+<h0> <a href='#' class='link-div'><svg viewBox='0 0 16 16' aria-hidden='true'><use xlink:href='#svg-link'></use></svg></a></h0>
+<p></p>
+<p></p>
+<p></p>
+<h1 id='ksgl_docs'> ksgl docs<a href='#ksgl_docs' class='link-div'><svg viewBox='0 0 16 16' aria-hidden='true'><use xlink:href='#svg-link'></use></svg></a></h1>
+<ul><li><a href='#gl'>gl: OpenGL bindings</a><ul><li><a href='#Constants'>Constants</a>: OpenGL constants<ul></ul></li><li><a href='#gl.glfw'>gl.glfw: GLFW Bindings</a><ul></ul></li></ul></li></ul><p></p>
+<p>This is the documentation for the kscript OpenGL bindings, ksgl. You can import this module via the <code>import gl</code> name.</p>
+<p>For matrix and vector operations in this package, the <a href='https://docs.kscript.org/#nx.array'>nx.array</a> type present in the <code>nx</code> module is used.</p>
+<h2 id='gl'>1. gl: OpenGL bindings<a href='#gl' class='link-div'><svg viewBox='0 0 16 16' aria-hidden='true'><use xlink:href='#svg-link'></use></svg></a></h2>
+<ul><li><a href='#Constants'>Constants</a>: OpenGL constants</li><li><a href='#gl.glfw'>gl.glfw: GLFW Bindings</a></li><li><a href='#gl.translate'><span class='monoi'>gl.translate(x, y, z)</span></a></li><li><a href='#gl.scale'><span class='monoi'>gl.scale(x, y, z)</span></a></li><li><a href='#gl.lookat'><span class='monoi'>gl.lookat(pos, target, up=(0, 1, 0))</span></a></li><li><a href='#gl.perspective'><span class='monoi'>gl.perspective(fov, aspect, Znear=0.15, Zfar=150.0)</span></a></li><li><a href='#gl.enable'><span class='monoi'>gl.enable(cap)</span></a></li><li><a href='#gl.disable'><span class='monoi'>gl.disable(cap)</span></a></li><li><a href='#gl.clear'><span class='monoi'>gl.clear(flags)</span></a></li><li><a href='#gl.clear_color'><span class='monoi'>gl.clear_color(r=0.0, g=0.0, b=0.0, a=1.0)</span></a></li><li><a href='#gl.viewport'><span class='monoi'>gl.viewport(x, y, w, h)</span></a></li><li><a href='#gl.polygon_mode'><span class='monoi'>gl.polygon_mode(face, mode=gl.FILL)</span></a></li><li><a href='#gl.draw_arrays'><span class='monoi'>gl.draw_arrays(mode, num, offset=0)</span></a></li><li><a href='#gl.draw_elements'><span class='monoi'>gl.draw_elements(mode, num, type, byteoffset=0)</span></a></li></ul><p></p>
+<p>This module, <code>gl</code>, implements the basic OpenGL operations. Some are just bindings to the OpenGL API, and some functionality is wrapped in an object oriented interface.</p>
+<p><dl><dt id='gl.translate'>gl.translate(x, y, z)<a href='#gl.translate' class='link-div'><svg viewBox='0 0 16 16' aria-hidden='true'><use xlink:href='#svg-link'></use></svg></a></dt><dd>Returns an <a href='https://docs.kscript.org/#nx.array'>nx.array</a> of shape <code>(4, 4)</code> representing a translation of <code>x</code>, <code>y</code>, and <code>z</code>, respectively.</p>
+<p>    </p>
+<p>    Equivalent to:</p>
+<pre class='language-ks'><code>func translate(x, y, z) {
+    ret nx.float([
+        [1, 0, 0, x],
+        [0, 1, 0, y],
+        [0, 0, 1, z],
+        [0, 0, 0, 1],
+    ])
+}
+</code></pre><p>    </dd><dt id='gl.scale'>gl.scale(x, y, z)<a href='#gl.scale' class='link-div'><svg viewBox='0 0 16 16' aria-hidden='true'><use xlink:href='#svg-link'></use></svg></a></dt><dd>Returns an <a href='https://docs.kscript.org/#nx.array'>nx.array</a> of shape <code>(4, 4)</code> representing a scaling of <code>x</code>, <code>y</code>, and <code>z</code>, respectively.</p>
+<p>    </p>
+<p>    Equivalent to:</p>
+<pre class='language-ks'><code>func scale(x, y, z) {
+    ret nx.float([
+        [x, 0, 0, 0],
+        [0, y, 0, 0],
+        [0, 0, z, 0],
+        [0, 0, 0, 1],
+    ])
+}
+</code></pre><p>    </dd><dt id='gl.lookat'>gl.lookat(pos, target, up=(0, 1, 0))<a href='#gl.lookat' class='link-div'><svg viewBox='0 0 16 16' aria-hidden='true'><use xlink:href='#svg-link'></use></svg></a></dt><dd>Returns an <a href='https://docs.kscript.org/#nx.array'>nx.array</a> of shape <code>(4, 4)</code> representing a view matrix where the camera is positioned at <code>pos</code> (expected to be a tuple of <code>(x, y, z)</code>) looking at <code>target</code> (expected to be a tuple of <code>(x, y, z)</code>). Optionally, the <code>up</code> direction may be given to cause a tilt.</p>
+<p>    </p>
+<p>    </dd><dt id='gl.perspective'>gl.perspective(fov, aspect, Znear=0.15, Zfar=150.0)<a href='#gl.perspective' class='link-div'><svg viewBox='0 0 16 16' aria-hidden='true'><use xlink:href='#svg-link'></use></svg></a></dt><dd>Returns an <a href='https://docs.kscript.org/#nx.array'>nx.array</a> of shape <code>(4, 4)</code> representing a projection matrix with a field-of-view of <code>fov</code> (in radians), and an aspect ratio of <code>aspect</code> (defined as <code>width/height</code>), and clipping planes between <code>Znear</code> and <code>Zfar</code>.</p>
+<p>    </p>
+<p>    </dd><dt id='gl.enable'>gl.enable(cap)<a href='#gl.enable' class='link-div'><svg viewBox='0 0 16 16' aria-hidden='true'><use xlink:href='#svg-link'></use></svg></a></dt><dd>Enables a feature in OpenGL. </p>
+<p>    </p>
+<p>    Equivalent to <code>glEnable</code> in C</p>
+<p>    </p>
+<p>    Examples:</p>
+<pre class='language-ks'><code>&gt;&gt;&gt; gl.enable(gl.DEPTH_TEST)
+</code></pre><p>    </dd><dt id='gl.disable'>gl.disable(cap)<a href='#gl.disable' class='link-div'><svg viewBox='0 0 16 16' aria-hidden='true'><use xlink:href='#svg-link'></use></svg></a></dt><dd>Disables a feature in OpenGL. </p>
+<p>    </p>
+<p>    Equivalent to <code>glDisable</code> in C</p>
+<p>    Examples:</p>
+<pre class='language-ks'><code>&gt;&gt;&gt; gl.disable(gl.DEPTH_TEST)
+</code></pre><p>    </dd><dt id='gl.clear'>gl.clear(flags)<a href='#gl.clear' class='link-div'><svg viewBox='0 0 16 16' aria-hidden='true'><use xlink:href='#svg-link'></use></svg></a></dt><dd>Clears <code>flags</code>, which is a combination of OpenGL flags</p>
+<p>    Equivalent to <code>glClear</code> in C</p>
+<p>    Examples:</p>
+<pre class='language-ks'><code>&gt;&gt;&gt; gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT)
+</code></pre><p>    </dd><dt id='gl.clear_color'>gl.clear_color(r=0.0, g=0.0, b=0.0, a=1.0)<a href='#gl.clear_color' class='link-div'><svg viewBox='0 0 16 16' aria-hidden='true'><use xlink:href='#svg-link'></use></svg></a></dt><dd>Clears the color and sets to <code>(r, g, b, a)</code> (expected to be floats in the 0 to 1 range). If no colors are given, the default is pure black</p>
+<p>    </p>
+<p>    Equivalent to <code>glClearColor</code> in C</p>
+<p>    </p>
+<p>    </dd><dt id='gl.viewport'>gl.viewport(x, y, w, h)<a href='#gl.viewport' class='link-div'><svg viewBox='0 0 16 16' aria-hidden='true'><use xlink:href='#svg-link'></use></svg></a></dt><dd>Set the viewport rendering area</p>
+<p>    </p>
+<p>    Equivalent to <code>glViewport</code> in C</p>
+<p>    </p>
+<p>    </dd><dt id='gl.polygon_mode'>gl.polygon_mode(face, mode=gl.FILL)<a href='#gl.polygon_mode' class='link-div'><svg viewBox='0 0 16 16' aria-hidden='true'><use xlink:href='#svg-link'></use></svg></a></dt><dd>Sets the polygon rendering mode.</p>
+<p>    </p>
+<p>    Equivalent to <code>glPolygonMode</code> in C</p>
+<p>    Examples:</p>
+<pre class='language-ks'><code>&gt;&gt;&gt; gl.polygon_mode(gl.FRONT_AND_BACK, gl.FILL)   # Default mode
+&gt;&gt;&gt; gl.polygon_mode(gl.FRONT_AND_BACK, gl.LINE)   # Wireframe mode
+&gt;&gt;&gt; gl.polygon_mode(gl.FRONT_AND_BACK, gl.POINT)  # Just vertex points
+</code></pre><p>    </dd><dt id='gl.draw_arrays'>gl.draw_arrays(mode, num, offset=0)<a href='#gl.draw_arrays' class='link-div'><svg viewBox='0 0 16 16' aria-hidden='true'><use xlink:href='#svg-link'></use></svg></a></dt><dd>Issues a draw command on the currently enabled shader and currently enabled array (i.e. VBO) to draw <code>num</code> elements starting from <code>offset</code>. Note that for triangles, the <code>num</code> should be <code>3 * num_tris</code> (i.e. the number of indexes, not triangles)</p>
+<p>    Calls <code>glDrawArrays</code> in C</p>
+<p>    </p>
+<p>    Examples:</p>
+<pre class='language-ks'><code>&gt;&gt;&gt; # Make sure to bind a VBO before this!
+&gt;&gt;&gt; gl.draw_arrays(gl.TRIANGLES, 3, 0)  # Draws tri 0
+&gt;&gt;&gt; gl.draw_arrays(gl.TRIANGLES, 3, 3)  # Draws tri 1
+&gt;&gt;&gt; gl.draw_arrays(gl.TRIANGLES, 6, 0)  # Draws tri 0 and tri 1
+</code></pre><p>    </dd><dt id='gl.draw_elements'>gl.draw_elements(mode, num, type, byteoffset=0)<a href='#gl.draw_elements' class='link-div'><svg viewBox='0 0 16 16' aria-hidden='true'><use xlink:href='#svg-link'></use></svg></a></dt><dd>Issues a draw command on the currently enabled shader and currently enabled vertex array's (i.e. VAO) index buffer (i.e. EBO) to draw <code>num</code> elements. Note that for triangles, the <code>num</code> should be <code>3 * num_tris</code> (i.e. the number of indexes, not triangles). <code>type</code> is the type of indexes being used. For example, using <code>nx.u32</code> (which is a good default), you would use <code>gl.UNSIGNED_INT</code>.</p>
+<p>    Remember that <code>byteoffset</code> is in bytes, not indexes. So, you could use <code>nx.u32.size * 5</code> to start at the 5th index.</p>
+<p>    Calls <code>glDrawElements</code> in C</p>
+<p>    </p>
+<p>    Examples:</p>
+<pre class='language-ks'><code>&gt;&gt;&gt; # Make sure to bind a VBO before this!
+&gt;&gt;&gt; gl.draw_elements(gl.TRIANGLES, 3, gl.UNSIGNED_INT, 0)  # Draws tri 0
+&gt;&gt;&gt; gl.draw_elements(gl.TRIANGLES, 3, gl.UNSIGNED_INT, 3 * nx.u32.size)  # Draws tri 1
+&gt;&gt;&gt; gl.draw_elements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, 0)  # Draws tri 0 and tri 1
+</code></pre><p>    </dd></dl></p>
+<h3 id='Constants'>1.1. Constants<a href='#Constants' class='link-div'><svg viewBox='0 0 16 16' aria-hidden='true'><use xlink:href='#svg-link'></use></svg></a></h3>
+<ul></ul><p></p>
+<p>This package includes OpenGL constants and enumerations available in the C API. However, the naming scheme is slightly different. The basic pattern is to remove the leading <code>GL_</code> and put it in the <code>gl</code> module. For example, <code>GL_COLOR_BUFFER_BIT</code> becomes <code>gl.COLOR_BUFFER_BIT</code>. This is true for all of the enumeration constants.</p>
+<p>We don't document all the constants here (as that would be too large and not very useful). But, if you see an example in C that uses the <code>GL_*</code> constants, just know they are defined in the <code>gl</code> module as <code>gl.*</code></p>
+<h3 id='gl.glfw'>1.2. gl.glfw: GLFW Bindings<a href='#gl.glfw' class='link-div'><svg viewBox='0 0 16 16' aria-hidden='true'><use xlink:href='#svg-link'></use></svg></a></h3>
+<ul><li><a href='#gl.glfw.Window'><span class='monoi'>gl.glfw.Window(name, size, monitor=none)</span></a></li><li><a href='#gl.glfw.Monitor'><span class='monoi'>gl.glfw.Monitor(idx=-1)</span></a></li><li><a href='#gl.glfw.poll'><span class='monoi'>gl.glfw.poll()</span></a></li></ul><p></p>
+<p>This module, <code>gl.glfw</code>, implements <a href='https://www.glfw.org/'>GLFW</a> bindings.</p>
+<p><dl><dt id='gl.glfw.Window'>gl.glfw.Window(name, size, monitor=none)<a href='#gl.glfw.Window' class='link-div'><svg viewBox='0 0 16 16' aria-hidden='true'><use xlink:href='#svg-link'></use></svg></a></dt><dd>This type represents an GLFW window, created with a string name (<code>name</code>), and a size (<code>size</code>, expected to be a tuple of <code>(width, height)</code>), and optionally, a <a href='#gl.glfw.Monitor'>monitor</a> (default: primary monitor).</p>
+<p>    </p>
+<p>    <dl><dt id='.size'>.size<a href='#.size' class='link-div'><svg viewBox='0 0 16 16' aria-hidden='true'><use xlink:href='#svg-link'></use></svg></a></dt><dd>Returns a tuple of <code>(width, height)</code> detailing the current size of the window.</dd><dt id='.pos'>.pos<a href='#.pos' class='link-div'><svg viewBox='0 0 16 16' aria-hidden='true'><use xlink:href='#svg-link'></use></svg></a></dt><dd>Returns a tuple of <code>(x, y)</code> detailing the current position of the window</dd><dt id='gl.glfw.Window.show'>gl.glfw.Window.show(self)<a href='#gl.glfw.Window.show' class='link-div'><svg viewBox='0 0 16 16' aria-hidden='true'><use xlink:href='#svg-link'></use></svg></a></dt><dd>Shows the window, if it was hidden</dd><dt id='gl.glfw.Window.hide'>gl.glfw.Window.hide(self)<a href='#gl.glfw.Window.hide' class='link-div'><svg viewBox='0 0 16 16' aria-hidden='true'><use xlink:href='#svg-link'></use></svg></a></dt><dd>Hides the window, if it was shown</dd><dt id='gl.glfw.Window.swap'>gl.glfw.Window.swap(self)<a href='#gl.glfw.Window.swap' class='link-div'><svg viewBox='0 0 16 16' aria-hidden='true'><use xlink:href='#svg-link'></use></svg></a></dt><dd>Swaps the window's front and back buffers</dd></dl></p>
+<p>    </p>
+<p>    </dd><dt id='gl.glfw.Monitor'>gl.glfw.Monitor(idx=-1)<a href='#gl.glfw.Monitor' class='link-div'><svg viewBox='0 0 16 16' aria-hidden='true'><use xlink:href='#svg-link'></use></svg></a></dt><dd>This type represents a GLFW monitor. It can be created with an index (default: primary monitor).</p>
+<p>    </p>
+<p>    <dl><dt id='.name'>.name<a href='#.name' class='link-div'><svg viewBox='0 0 16 16' aria-hidden='true'><use xlink:href='#svg-link'></use></svg></a></dt><dd>Returns a string of the monitor's name</dd></dl></p>
+<p>    </dd><dt id='gl.glfw.poll'>gl.glfw.poll()<a href='#gl.glfw.poll' class='link-div'><svg viewBox='0 0 16 16' aria-hidden='true'><use xlink:href='#svg-link'></use></svg></a></dt><dd>Polls and processes events</dd></dl></p>
+</div></div>
+<svg class='sidenav-button' onclick='doq_togglesidenav()' viewBox='0 0 100 80' width='40' height='40'><rect width='100' height='20'></rect><rect y='30' width='100' height='20'></rect><rect y='60' width='100' height='20'></rect></svg>
+</body>
+</html>

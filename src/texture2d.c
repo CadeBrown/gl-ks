@@ -36,9 +36,10 @@ static KS_TFUNC(T, init) {
 
     if (internalformat < 0) internalformat = format;
 
+
     /* Create buffer object */
     GLuint t;
-    glGenBuffers(1, &t);
+    glGenTextures(1, &t);
     self->val = t;
 
     /* Convert the data to its bytes equivalent */
@@ -49,6 +50,9 @@ static KS_TFUNC(T, init) {
 
     /* Bind as the currently used texture */
     glBindTexture(GL_TEXTURE_2D, self->val);
+    if (!ksgl_check()) {
+        return NULL;
+    }
 
     /* Set default parameters */
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -82,7 +86,6 @@ static KS_TFUNC(T, write) {
     ks_cint type = GL_UNSIGNED_BYTE;
     ks_cint internalformat = -1;
     KS_ARGS("self:* data width:cint height:cint ?format:cint ?type:cint ?internalformat:cint", &self, ksglt_texture2d, &data, &width, &height, &format, &type, &internalformat);
-    
 
     if (internalformat < 0) internalformat = format;
 
@@ -97,14 +100,22 @@ static KS_TFUNC(T, write) {
         return NULL;
     }
 
-    printf("TEST\n");
-
     /* Bind as the currently used texture */
     glBindTexture(GL_TEXTURE_2D, self->val);
+    if (!ksgl_check()) {
+        return NULL;
+    }
 
     /* Upload image data */
     glTexImage2D(GL_TEXTURE_2D, 0, internalformat, width, height, 0, format, type, data_bytes->data);
+    if (!ksgl_check()) {
+        return NULL;
+    }
+
     glGenerateMipmap(GL_TEXTURE_2D);
+    if (!ksgl_check()) {
+        return NULL;
+    }
 
     KS_DECREF(data_bytes);
 

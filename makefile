@@ -22,17 +22,22 @@ CXXFLAGS       +=
 LDFLAGS        += -lglfw
 DEFS           += -DKSGL_GLFW
 
+# Assimp
+CXXFLAGS       += 
+LDFLAGS        += -lassimp
+DEFS           += -DKSGL_ASSIMP
+
 # Add from the kscript configuration
 CXXFLAGS       += -I$(KS)/include
 LDFLAGS        += -L$(KS)/lib
 
 # DEBUG
-#CXXFLAGS += -g
+CXXFLAGS += -g
 
 
 # -*- Files -*-
 
-src_C          := $(wildcard src/*.c) $(wildcard src/glfw/*.c)
+src_C          := $(wildcard src/*.c) $(wildcard src/glfw/*.c) $(wildcard src/ai/*.c) $(wildcard src/util/*.c)
 src_H          := $(wildcard include/*.h)
 
 src_O          := $(patsubst %.c,%.o,$(src_C))

@@ -38,6 +38,10 @@ static int compile_shader(int kind, ks_str src) {
         (const char*)src->data 
     }, NULL);
     glCompileShader(sh);
+    if (!ksgl_check()) {
+        glDeleteShader(sh);
+        return -1;
+    }
 
     /* Check success status */
     int success;
@@ -64,14 +68,26 @@ static int compile_shader(int kind, ks_str src) {
 static int make_program(int nshaders, int* shaders) {
     /* Create complete shader program */
     int prog = glCreateProgram();
+    if (!ksgl_check()) {
+        glDeleteProgram(prog);
+        return -1;
+    }
 
     /* Attach all prts */
     int i;
     for (i = 0; i < nshaders; ++i) {
         glAttachShader(prog, shaders[i]);
+        if (!ksgl_check()) {
+            glDeleteProgram(prog);
+            return -1;
+        }
     }
 
     glLinkProgram(prog);
+    if (!ksgl_check()) {
+        glDeleteProgram(prog);
+        return -1;
+    }
 
     /* Check status */
     int success;
@@ -97,6 +113,8 @@ static KS_TFUNC(T, init) {
     ks_str src_vert, src_frag;
     KS_ARGS("self:* src_vert:* src_frag:*", &self, ksglt_shader, &src_vert, kst_str, &src_frag, kst_str);
 
+    self->val = -1;
+    
     /* Compile vertex shader */
     int sh_vert = compile_shader(GL_VERTEX_SHADER, src_vert);
     if (sh_vert < 0) {
@@ -125,8 +143,27 @@ static KS_TFUNC(T, use) {
     KS_ARGS("self:*", &self, ksglt_shader);
 
     glUseProgram(self->val);
-
+    if (!ksgl_check()) {
+        return NULL;
+    }
+    
     return KSO_NONE;
+}
+static KS_TFUNC(T, uniformloc) {
+    ksgl_shader self;
+    ks_str name;
+    KS_ARGS("self:* name:*", &self, ksglt_shader, &name, kst_str);
+
+    int pos = glGetUniformLocation(self->val, name->data);
+    if (pos < 0) {
+        KS_THROW(kst_Error, "Unknown uniform %R", name);
+        return NULL;
+    }
+    if (!ksgl_check()) {
+        return NULL;
+    }
+
+    return (kso)ks_int_new(pos);
 }
 
 static KS_TFUNC(T, uniform) {
@@ -140,7 +177,6 @@ static KS_TFUNC(T, uniform) {
         KS_THROW(kst_Error, "Unknown uniform %R", name);
         return NULL;
     }
-
 
     if (kso_is_int(val)) {
         /* Set as integer */
@@ -281,6 +317,7 @@ void _ksgl_shader() {
 
         {"use",                    ksf_wrap(T_use_, T_NAME ".use(self)", "Set this shader to the current OpenGL shader")},
         {"uniform",                ksf_wrap(T_uniform_, T_NAME ".uniform(self, name, val)", "Set the uniform 'name' to a given value")},
+        {"uniformloc",             ksf_wrap(T_uniformloc_, T_NAME ".uniformloc(self, name)", "Return the uniform location")},
 
     ));
 }

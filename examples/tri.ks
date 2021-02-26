@@ -48,18 +48,19 @@ void main() {
 tri = gl.VAO()
 tri.bind()
 
+
 # Create a 'gl.VBO' object. This is a buffer on the GPU, which can hold any
 #   data. We make sure to make it an array of 'nx.float', since we use 'gl.FLOAT'
 #   when creating the attribute. You can upload any arbitrary bytes, though
 #
-# This data is an array of [x, y, z] coordinates for each vertex
+# This data is an array of (x, y, z) coordinates for each vertex
 #
 # Due to OpenGL's global state, it is important that we create it within the 
 #   'tri.bind()' and 'tri.unbind()' calls
 tri_vbo = gl.VBO(nx.float([
-    [-0.5, -0.5, 0.0],
-    [0.5, -0.5, 0.0],
-    [0.0, 0.5, 0.0],
+    [-0.5, -0.5,  0.0],
+    [ 0.5, -0.5,  0.0],
+    [ 0.0,  0.5,  0.0],
 ]))
 
 # Create a 'gl.EBO' object. This is also a buffer on the GPU, but it represents
@@ -78,6 +79,9 @@ tri_ebo = gl.EBO(nx.u32([
 #   is like an array of components. For example, our structure would be 'vec3 pos', which
 #   would have 1 attribute, 3 components, of the 'float' type.
 #
+# By default, attributes are enabled. You can use 'tri.attrib_enable(0)' and 'tri.attrib_disbable(0)'
+#   to enable/disable them.
+#
 # The arguments are:
 #   tri.attrib(index, size, type, normalize, stride, offset)
 # Where:
@@ -89,9 +93,6 @@ tri_ebo = gl.EBO(nx.u32([
 #   * offset: The offset from the beginning of the structure. There is none for the first attribute
 tri.attrib(0, 3, gl.FLOAT, gl.FALSE, 3 * nx.float.size, 0)
 
-# Make sure to enable it!
-tri.enableAttrib(0)
-
 # We are done, so unbind it. When we re-bind it, the VBO and EBO are loaded as the current
 #   state
 tri.unbind()
@@ -101,7 +102,6 @@ tri.unbind()
 while window {
 
     ## Logic ##
-
 
 
     ## Render Setup ##
@@ -116,11 +116,10 @@ while window {
     gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT)
 
     # Set background color
-    gl.clearColor(0.1, 0.1, 0.1)
-
+    gl.clear_color(0.1, 0.1, 0.1)
 
     # Wireframe mode
-    #gl.polygonMode(gl.FRONT_AND_BACK, gl.LINE)
+    #gl.polygon_mode(gl.FRONT_AND_BACK, gl.LINE)
 
 
     ## Render Scene ##
@@ -130,9 +129,10 @@ while window {
 
     # Bind the VAO 
     tri.bind()
+
     # Now, draw all the elements of the VAO
     # '3' is the number of datapoints, and each triangle takes 3
-    gl.drawElements(gl.TRIANGLES, 3, gl.UNSIGNED_INT, 0)
+    gl.draw_elements(gl.TRIANGLES, 3, gl.UNSIGNED_INT)
 
     # Done with the VAO
     tri.unbind()
@@ -146,4 +146,3 @@ while window {
     # Swap buffers
     window.swap()
 }
-

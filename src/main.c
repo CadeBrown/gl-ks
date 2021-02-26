@@ -1,6 +1,5 @@
 /* main.c - module implementation for OpenGL bindings
  *
- *
  * @author: Cade Brown <cade@kscript.org>
  */
 #include <ksgl.h>
@@ -46,6 +45,7 @@ static KS_TFUNC(M, translate) {
     res[2][3] = z;
     return (kso)nx_array_newc(nxt_array, &res[0][0], nxd_F, 2, (ks_size_t[]){ 4, 4 }, NULL);
 }
+
 static KS_TFUNC(M, scale) {
     ks_cfloat x, y, z;
     KS_ARGS("x:cfloat y:cfloat z:cfloat", &x, &y, &z);
@@ -217,6 +217,9 @@ static KS_TFUNC(M, perspective) {
     return (kso)nx_array_newc(nxt_array, &res[0][0], nxd_F, 2, (ks_size_t[]){ 4, 4 }, NULL);
 }
 
+
+/** OpenGL wrapper functions **/
+
 static KS_TFUNC(M, enable) {
     ks_cint cap;
     KS_ARGS("cap:cint", &cap);
@@ -234,8 +237,6 @@ static KS_TFUNC(M, disable) {
 
     return KSO_NONE;
 }
-
-
 
 static KS_TFUNC(M, clear) {
     ks_cint flags;
@@ -271,7 +272,7 @@ static KS_TFUNC(M, viewport) {
 }
 
 
-static KS_TFUNC(M, polygonMode) {
+static KS_TFUNC(M, polygon_mode) {
     ks_cint face, mode = GL_FILL;
     KS_ARGS("face:cint ?mode:cint", &face, &mode);
 
@@ -281,23 +282,27 @@ static KS_TFUNC(M, polygonMode) {
 }
 
 
-static KS_TFUNC(M, drawArrays) {
-    ks_cint mode, first, count;
-    KS_ARGS("mode:cint first:cint count:cint", &mode, &first, &count);
+/*** Drawing Commands ***/
 
-    glDrawArrays(mode, first, count); 
+static KS_TFUNC(M, draw_arrays) {
+    ks_cint mode, num, offset = 0;
+    KS_ARGS("mode:cint num:cint ?offset:cint", &mode, &num, &offset);
+
+    glDrawArrays(mode, offset, num); 
+
+    return KSO_NONE;
+}
+
+static KS_TFUNC(M, draw_elements) {
+    ks_cint mode, num, type, byteoffset = 0;
+    KS_ARGS("mode:cint num:cint type:cint ?byteoffset:cint", &mode, &num, &type, &byteoffset);
+
+    glDrawElements(mode, num, type, (void*)byteoffset);
 
     return KSO_NONE;
 }
 
-static KS_TFUNC(M, drawElements) {
-    ks_cint mode, count, type, indices = 0;
-    KS_ARGS("mode:cint count:cint type:cint ?indices:cint", &mode, &count, &type, &indices);
 
-    glDrawElements(mode, count, type, (void*)indices);
-
-    return KSO_NONE;
-}
 
 
 /* Export */
@@ -320,6 +325,18 @@ static ks_module get() {
     }
 #endif
 
+    ks_module res_util = _ksgl_util();
+    if (!res_util) {
+        KS_DECREF(res_glfw);
+        return NULL;
+    }
+    ks_module res_ai = _ksgl_ai();
+    if (!res_util) {
+        KS_DECREF(res_glfw);
+        KS_DECREF(res_util);
+        return NULL;
+    }
+
     ks_str k = ks_str_new(-1, "nx");
     ks_module m = ks_import(k);
     KS_DECREF(k);
@@ -341,6 +358,10 @@ static ks_module get() {
 #ifdef KSGL_GLFW
         {"glfw",  (kso)res_glfw},
 #endif
+
+        {"ai",  (kso)res_ai},
+        {"util",  (kso)res_util},
+
 
         /* Constants */
         
@@ -366,14 +387,14 @@ static ks_module get() {
         {"enable",                 ksf_wrap(M_enable_, M_NAME ".enable(cap)", "Enables a feature in OpenGL")},
         {"disable",                ksf_wrap(M_disable_, M_NAME ".disable(cap)", "Disables a feature in OpenGL")},
         {"clear",                  ksf_wrap(M_clear_, M_NAME ".clear(flags)", "Clears 'flags' (which should be a bitmask of OpenGL flags)")},
-        {"clearColor",             ksf_wrap(M_clearColor_, M_NAME ".clearColor(*args)", "Sets the clear color to '*args', which should be the RGBA components (default: black)")},
+        {"clear_color",            ksf_wrap(M_clearColor_, M_NAME ".clearColor(*args)", "Sets the clear color to '*args', which should be the RGBA components (default: black)")},
 
         {"viewport",               ksf_wrap(M_viewport_, M_NAME ".viewport(x, y, w, h)", "Set the viewport rendering range")},
 
-        {"polygonMode",            ksf_wrap(M_polygonMode_, M_NAME "polygonMode(face, mode=gl.FILL)", "Set the polygon rendering mode")},
+        {"polygon_mode",           ksf_wrap(M_polygon_mode_, M_NAME "polygon_mode(face, mode=gl.FILL)", "Set the polygon rendering mode")},
 
-        {"drawArrays",             ksf_wrap(M_drawArrays_, M_NAME ".drawArrays(mode, first, count)", "Draws primitives from the currently bound vao")},
-        {"drawElements",           ksf_wrap(M_drawElements_, M_NAME ".drawElements(mode, first, count)", "Draws primitives from the currently bound VAO's EBO")},
+        {"draw_arrays",            ksf_wrap(M_draw_arrays_, M_NAME ".draw_arrays(mode, num, offset=0)", "Draws primitives from the currently bound vao")},
+        {"draw_elements",           ksf_wrap(M_draw_elements_, M_NAME ".draw_elements(mode, num, type, byteoffset=0)", "Draws primitives from the currently bound VAO's EBO")},
 
     ));
 

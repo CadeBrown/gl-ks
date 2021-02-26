@@ -12,7 +12,6 @@ bool ksgl_check() {
     }
 
     KS_THROW(kst_Error, "OpenGL error %i", (int)rc);
-
     return false;
 }
 
