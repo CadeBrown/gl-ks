@@ -59,10 +59,13 @@ static KS_TFUNC(T, getattr) {
         nx_u32* rdata = ks_smalloc(sizeof(*rdata) * 3 * self->val->mNumFaces);
         int i;
         for (i = 0; i < self->val->mNumFaces; ++i) {
-            if (self->val->mFaces[i].mNumIndices != 3) {
-                KS_THROW(kst_SizeError, "Faces were not triangulated! (This is an internal error)");
+            if (self->val->mFaces[i].mNumIndices > 3) {
+                KS_THROW(kst_Error, "Faces were not triangulated! (This is an internal error) Had %i indices", (int)self->val->mFaces[i].mNumIndices);
                 ks_free(rdata);
                 return NULL;
+            } else if (self->val->mFaces[i].mNumIndices < 3) {
+                // Ignore
+                continue;
             }
             rdata[3 * i + 0] = self->val->mFaces[i].mIndices[0];
             rdata[3 * i + 1] = self->val->mFaces[i].mIndices[1];
