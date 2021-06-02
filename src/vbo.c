@@ -61,6 +61,15 @@ static KS_TFUNC(T, init) {
 
     return KSO_NONE;
 }
+
+static KS_TFUNC(T, integral) {
+    ksgl_vbo self;
+    KS_ARGS("self:*", &self, ksglt_vbo);
+
+    return (kso)ks_int_new(self->val);
+}
+
+
 static KS_TFUNC(T, bind) {
     ksgl_vbo self;
     KS_ARGS("self:*", &self, ksglt_vbo);
@@ -157,6 +166,8 @@ void _ksgl_vbo() {
     ksglt_vbo = ks_type_new(T_NAME, kst_object, sizeof(struct ksgl_vbo_s), -1, "OpenGL vertex buffer object (VBO)", KS_IKV(
         {"__free",                 ksf_wrap(T_free_, T_NAME ".__free(self)", "")},
         {"__init",                 ksf_wrap(T_init_, T_NAME ".__init(self, data='', usage=gl.STATIC_DRAW)", "")},
+
+        {"__integral",             ksf_wrap(T_integral_, T_NAME ".__integral(self)", "Converts to an integer (the OpenGL handle)")},
 
         {"bind",                   ksf_wrap(T_bind_, T_NAME ".bind(self)", "Bind this vertex buffer object as the current one")},
         {"unbind",                 ksf_wrap(T_unbind_, T_NAME ".unbind(self)", "Unbind this vertex buffer object")},

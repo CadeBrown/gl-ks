@@ -77,6 +77,12 @@ static KS_TFUNC(T, init) {
     return KSO_NONE;
 }
 
+static KS_TFUNC(T, integral) {
+    ksgl_texture2d self;
+    KS_ARGS("self:*", &self, ksglt_texture2d);
+
+    return (kso)ks_int_new(self->val);
+}
 
 static KS_TFUNC(T, write) {
     ksgl_texture2d self;
@@ -159,6 +165,8 @@ void _ksgl_texture2d() {
     ksglt_texture2d = ks_type_new(T_NAME, kst_object, sizeof(struct ksgl_texture2d_s), -1, "OpenGL 2D texture", KS_IKV(
         {"__free",                 ksf_wrap(T_free_, T_NAME ".__free(self)", "")},
         {"__init",                 ksf_wrap(T_init_, T_NAME ".__init(self, data='', width=none, height=none, format=gl.RGBA, type=gl.UNSIGNED_BYTE, internalformat=-1)", "If 'internalformat < 0', then it is set equal to 'format'")},
+
+        {"__integral",             ksf_wrap(T_integral_, T_NAME ".__integral(self)", "Converts to an integer (the OpenGL handle)")},
 
         {"bind",                   ksf_wrap(T_bind_, T_NAME ".bind(self)", "Bind this vertex buffer object as the current one")},
         {"unbind",                 ksf_wrap(T_unbind_, T_NAME ".unbind(self)", "Unbind this vertex buffer object")},

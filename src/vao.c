@@ -36,6 +36,15 @@ static KS_TFUNC(T, init) {
     return KSO_NONE;
 }
 
+
+static KS_TFUNC(T, integral) {
+    ksgl_vao self;
+    KS_ARGS("self:*", &self, ksglt_vao);
+
+    return (kso)ks_int_new(self->val);
+}
+
+
 static KS_TFUNC(T, bind) {
     ksgl_vao self;
     KS_ARGS("self:*", &self, ksglt_vao);
@@ -107,6 +116,9 @@ void _ksgl_vao() {
     ksglt_vao = ks_type_new(T_NAME, kst_object, sizeof(struct ksgl_vao_s), -1, "OpenGL vertex array object (vao)", KS_IKV(
         {"__free",                 ksf_wrap(T_free_, T_NAME ".__free(self)", "")},
         {"__init",                 ksf_wrap(T_init_, T_NAME ".__init(self)", "")},
+
+        {"__integral",             ksf_wrap(T_integral_, T_NAME ".__integral(self)", "Converts to an integer (the OpenGL handle)")},
+
 
         {"bind",                   ksf_wrap(T_bind_, T_NAME ".bind(self)", "Bind this vertex array object as the current one")},
         {"unbind",                 ksf_wrap(T_unbind_, T_NAME ".unbind(self)", "Unbind this vertex array")},

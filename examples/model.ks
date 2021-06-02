@@ -1,18 +1,5 @@
 #!/usr/bin/env ks
-""" model.ks - basic model loading and displaying
-
-This example uses modern OpenGL (specifically, 3.3), and so it will be
-  fairly fast on all hardware. OpenGL 3.3 is a good standard to program for,
-  as the more efficient routines are available yet it is widely supported
-
-This tutorial also uses:
-  * gl.glfw: GLFW bindings, for window creation and input management
-  * gl.assimp
-
-OpenGL uses a global state, which is admittedly not-so-great design. So,
-  this code can get a bit hard to understand and it may seem like magic.
-  This is how OpenGL is. Typically, you will write your own renderer on top
-  of OpenGL, which handles all this state management.
+""" waves.ks - Simulates ocean waves
 
 @author: Cade Brown <cade@kscript.org>
 """
@@ -33,7 +20,7 @@ import m
 import time
 
 # Create a basic window from GLFW (part of the 'gl' package)
-window = gl.glfw.Window("basic", (640, 480))
+window = gl.glfw.Window("waves", (640, 480))
 
 # Create a 'gl.Shader' object. This is how we tell the computer to render 
 #   objects. The constructor takes the vertex shader source, then the fragment

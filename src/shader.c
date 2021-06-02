@@ -138,6 +138,14 @@ static KS_TFUNC(T, init) {
     return KSO_NONE;
 }
 
+static KS_TFUNC(T, integral) {
+    ksgl_shader self;
+    KS_ARGS("self:*", &self, ksglt_shader);
+
+    return (kso)ks_int_new(self->val);
+}
+
+
 static KS_TFUNC(T, use) {
     ksgl_shader self;
     KS_ARGS("self:*", &self, ksglt_shader);
@@ -314,6 +322,8 @@ void _ksgl_shader() {
     ksglt_shader = ks_type_new(T_NAME, kst_object, sizeof(struct ksgl_shader_s), -1, "OpenGL shader", KS_IKV(
         {"__free",                 ksf_wrap(T_free_, T_NAME ".__free(self)", "")},
         {"__init",                 ksf_wrap(T_init_, T_NAME ".__init(self, src_vert, src_frag)", "")},
+
+        {"__integral",             ksf_wrap(T_integral_, T_NAME ".__integral(self)", "Converts to an integer (the OpenGL handle)")},
 
         {"use",                    ksf_wrap(T_use_, T_NAME ".use(self)", "Set this shader to the current OpenGL shader")},
         {"uniform",                ksf_wrap(T_uniform_, T_NAME ".uniform(self, name, val)", "Set the uniform 'name' to a given value")},
